@@ -5,7 +5,6 @@ import DebtDetails from "./DebtDetails";
 import EditDebt from "./EditDebt";
 import { StyleSheet, View } from "react-native";
 import Footer from "./Footer";
-import PayDebt from "./PayDebt";
 
 const Stack = createStackNavigator();
 
