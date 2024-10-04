@@ -1,6 +1,5 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as Updates from "expo-updates";
 
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState } from "react";
 import { Alert, Button, Text, TextInput, View, StyleSheet } from "react-native";
 

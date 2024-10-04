@@ -1,4 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { useEffect, useState } from "react";
 import {
@@ -16,6 +15,7 @@ import * as FileSystem from "expo-file-system";
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
 import { styles } from "./styles";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const DebtRegistration = () => {
   const [name, setName] = useState("");
@@ -299,12 +299,12 @@ const DebtRegistration = () => {
         <View style={styles.summary}>
           <Text
             style={
-              getTotalOwedByAll() > 0
+              getTotalOwedByAll() >= 0
                 ? styles.summaryText
                 : styles2.summaryDebtText
             }
           >
-            {getTotalOwedByAll() > 0
+            {getTotalOwedByAll() >= 0
               ? "ሰው ጋር ያለህ/ሽ አጠቃላይ ብር"
               : "ሰው ላይ ያለብህ/ሽ አጠቃላይ ብር"}
             : {getTotalOwedByAll()} ETB
