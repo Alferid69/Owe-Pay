@@ -1,7 +1,10 @@
-
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { Alert, Button, Text, TextInput, View, StyleSheet } from "react-native";
+import { TouchableOpacity } from "react-native-gesture-handler";
+
+import { styles as globalStyles } from "../Styles/styles";
 
 const EditDebt = ({ route, navigation }) => {
   const { debt, name } = route.params;
@@ -53,23 +56,30 @@ const EditDebt = ({ route, navigation }) => {
     }
   };
 
+  const { t } = useTranslation("global");
+
   return (
     <View style={styles.container}>
-      <Text>Edit Debt Entry</Text>
+      <Text>{t("edit_debt_title")}</Text>
       <TextInput
-        placeholder="Amount"
+        placeholder={t("placeholderAmount")}
         value={amount}
         onChangeText={setAmount}
         keyboardType="numeric"
         style={styles.input}
       />
       <TextInput
-        placeholder="Reason"
+        placeholder={t("placeholderReason")}
         value={reason}
         onChangeText={setReason}
         style={styles.input}
       />
-      <Button title="Save Changes" onPress={handleSave} />
+      <TouchableOpacity
+        style={[globalStyles.buttonBase, globalStyles.registerButton]}
+        onPress={handleSave}
+      >
+        <Text style={globalStyles.buttonText}>{t("save_changes_button")}</Text>
+      </TouchableOpacity>
     </View>
   );
 };

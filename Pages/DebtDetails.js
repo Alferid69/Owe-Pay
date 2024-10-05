@@ -1,6 +1,7 @@
 import { FontAwesome } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import {
   View,
   Text,
@@ -22,11 +23,12 @@ const DebtDetails = ({ route }) => {
       name: name, // Include the debtor's name as well
     });
   };
+  const {t} = useTranslation('global');
 
   return (
     <View style={styles.container}>
       <ScrollView>
-        <Text style={styles.title}>{name}'s Debt Details:</Text>
+        <Text style={styles.title}>{t("detailTitle").replace("{name}", name)}</Text>
         <FlatList
           data={debts}
           keyExtractor={(item, index) => index.toString()}
@@ -36,12 +38,16 @@ const DebtDetails = ({ route }) => {
                 <Text
                   style={item.amount === 0 ? styles.paidText : item.amount > 0 ? styles.amountText : styles.debtText}
                 >
-                  Amount: {item.amount.toFixed(2)} ETB
+                  {t("amount_label").replace("{amount}", String(item.amount.toFixed(2)))}
                 </Text>
-                <Text style={styles.reasonText}>Reason: {item.reason}</Text>
-                <Text style={styles.dateText}>Date: {item.date}</Text>
+                <Text style={styles.reasonText}>
+                  {t("reason_label").replace("{reason}", item.reason)}
+                </Text>
+                <Text style={styles.dateText}>
+                  {t("date_label").replace("{date}", item.date)}
+                </Text>
               </View>
-
+  
               {item.amount !== 0 ? (
                 <View style={styles.actions}>
                   <TouchableOpacity
@@ -55,8 +61,9 @@ const DebtDetails = ({ route }) => {
                 <View>
                   <TouchableOpacity
                     style={styles.button}
-                    onPress={() => Alert.alert("ይህ እዳ ተከፍሏል።")}
+                    onPress={() => Alert.alert(t("debt_paid_message"))}
                   >
+                    <Text style={{ color: "#fff" }}>{t("info_button")}</Text>
                     <FontAwesome name="info-circle" size={20} color="#fff" />
                   </TouchableOpacity>
                 </View>
@@ -68,6 +75,7 @@ const DebtDetails = ({ route }) => {
       </ScrollView>
     </View>
   );
+  
 };
 
 const styles = StyleSheet.create({

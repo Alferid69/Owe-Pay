@@ -165,7 +165,14 @@ export const styles = StyleSheet.create({
     alignItems: "center",
     padding: 15, // Padding around the header
     borderRadius: 10, // Rounded corners
+    position: "relative",
   },
+  lang: {
+    position: "absolute",
+    right: 5,
+    top: 13,
+  },
+
   title: {
     fontSize: 22, // Larger font size for the title
     fontWeight: "bold", // Bold text

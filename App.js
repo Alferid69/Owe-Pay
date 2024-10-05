@@ -1,48 +1,51 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import DebtRegistration from "./DebtRegistration";
-import DebtDetails from "./DebtDetails";
-import EditDebt from "./EditDebt";
+import { I18nextProvider } from "react-i18next";
 import { StyleSheet, View } from "react-native";
-import Footer from "./Footer";
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { enableScreens } from 'react-native-screens';
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { enableScreens } from "react-native-screens";
+import DebtDetails from "./Pages/DebtDetails";
+import DebtRegistration from "./Pages/DebtRegistration";
+import EditDebt from "./Pages/EditDebt";
+import Footer from "./Components/Footer";
+import i18n from "./i18n";
 
 enableScreens();
-
 
 const Stack = createStackNavigator();
 
 const App = () => {
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <NavigationContainer>
-        <View style={styles.container}>
-          <Stack.Navigator initialRouteName="DebtRegistration">
-            <Stack.Screen
-              name="DebtRegistration"
-              component={DebtRegistration}
-              options={{
-                title: "እዳ መመዝገቢያ",
-                headerShown: false,
-                headerTitleStyle: {
-                  fontSize: 24, // Set your desired font size
-                  fontWeight: "bold", // Set font weight
-                  color: "#333", // Change text color
-                  textAlign: "center", // Center the title
-                },
-                headerStyle: {
-                  backgroundColor: "#f8f9fa", // Set background color of header
-                },
-              }}
-            />
-            <Stack.Screen name="DebtDetails" component={DebtDetails} />
-            <Stack.Screen name="EditDebt" component={EditDebt} />
-          </Stack.Navigator>
-          <Footer />
-        </View>
-      </NavigationContainer>
-    </GestureHandlerRootView>
+    <I18nextProvider i18n={i18n}>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <NavigationContainer>
+          <View style={styles.container}>
+            <Stack.Navigator initialRouteName="DebtRegistration">
+              <Stack.Screen
+                name="DebtRegistration"
+                component={DebtRegistration}
+                options={{
+                  title: "እዳ መመዝገቢያ",
+                  headerShown: false,
+                  headerTitleStyle: {
+                    fontSize: 24, // Set your desired font size
+                    fontWeight: "bold", // Set font weight
+                    color: "#333", // Change text color
+                    textAlign: "center", // Center the title
+                  },
+                  headerStyle: {
+                    backgroundColor: "#f8f9fa", // Set background color of header
+                  },
+                }}
+              />
+              <Stack.Screen name="DebtDetails" component={DebtDetails} />
+              <Stack.Screen name="EditDebt" component={EditDebt} />
+            </Stack.Navigator>
+            <Footer />
+          </View>
+        </NavigationContainer>
+      </GestureHandlerRootView>
+    </I18nextProvider>
   );
 };
 

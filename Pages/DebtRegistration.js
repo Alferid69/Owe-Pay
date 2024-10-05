@@ -14,8 +14,11 @@ import { FontAwesome } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
 import * as Print from "expo-print";
 import * as Sharing from "expo-sharing";
-import { styles } from "./styles";
+import { styles } from "../Styles/styles";
+import { useTranslation } from "react-i18next";
+
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import LanguageChanger from "../Components/LanguageChanger";
 
 const DebtRegistration = () => {
   const [name, setName] = useState("");
@@ -25,6 +28,7 @@ const DebtRegistration = () => {
   const [searchTerm, setSearchTerm] = useState(""); // New state for search term
 
   const navigation = useNavigation();
+  const { t } = useTranslation("global");
 
   const loadDebtors = async () => {
     try {
@@ -38,14 +42,13 @@ const DebtRegistration = () => {
   };
 
   useEffect(() => {
-    // Call loadDebtors when the screen is focused
     const unsubscribe = navigation.addListener("focus", () => {
-      loadDebtors(); // Fetch debts whenever the screen is focused
+      loadDebtors();
     });
 
     loadDebtors(); // Fetch debts when the component mounts for the first time
 
-    return unsubscribe; // Clean up the listener on unmount
+    return unsubscribe;
   }, [navigation]);
 
   const registerDebt = async () => {
@@ -85,7 +88,6 @@ const DebtRegistration = () => {
     }, 0);
   };
 
-  // Function to export data to PDF
   const exportDataToPdf = async (data) => {
     try {
       const html = `
@@ -120,13 +122,13 @@ const DebtRegistration = () => {
             </style>
           </head>
           <body>
-            <h1>የእዳይ ዝርዝር</h1>
+            <h1>${t("pdfTitle")}</h1>
             <table>
               <tr>
-                <th>ስም</th>
-                <th>ብዛት</th>
-                <th>ምክንያት</th>
-                <th>ቀን</th>
+                <th>${t("nameColumn")}</th>
+                <th>${t("amountColumn")}</th>
+                <th>${t("reasonColumn")}</th>
+                <th>${t("dateColumn")}</th>
               </tr>
               ${data
                 .map(({ name, debts }) =>
@@ -149,10 +151,7 @@ const DebtRegistration = () => {
         </html>
       `;
 
-      // Generate the PDF from HTML
       const { uri } = await Print.printToFileAsync({ html });
-
-      // Move the file to the documents directory for sharing
       const fileUri = `${
         FileSystem.documentDirectory
       }debts_report_${new Date().toISOString()}.pdf`;
@@ -161,18 +160,16 @@ const DebtRegistration = () => {
         to: fileUri,
       });
 
-      // Share the PDF
       if (await Sharing.isAvailableAsync()) {
         await Sharing.shareAsync(fileUri);
       } else {
-        Alert.alert("Sharing is not available on this device");
+        Alert.alert(t("noSharing"));
       }
     } catch (error) {
-      console.error("Error exporting PDF:", error);
+      console.error(t("error_exporting_pdf"), error);
     }
   };
 
-  // Function to handle exporting all debts
   const handleExportClick = () => {
     const allDebts = Object.keys(debtors).map((name) => ({
       name,
@@ -182,21 +179,16 @@ const DebtRegistration = () => {
   };
 
   const resetDept = () => {
-    Alert.alert(
-      "Confirm",
-      "ከማጥፋቶ በፊት ወደ PDF መቀየር አይርሱ። ሙሉ መረጃ የሚጠፋ ይሆናል። እርግጠኛ ኖት? !",
-      [
-        { text: "ይቅር አይጥፋ።", style: "cancel" },
-        {
-          text: "አዎ ይጥፋ!",
-          onPress: async () => {
-            await AsyncStorage.removeItem("debtors");
-            // await AsyncStorage.clear();
-            setDebtors([]);
-          },
+    Alert.alert(t("confirmReset"), t("confirmReset.confirmReset"), [
+      { text: t("cancelReset"), style: "cancel" },
+      {
+        text: t("confirmResetYes"),
+        onPress: async () => {
+          await AsyncStorage.removeItem("debtors");
+          setDebtors([]);
         },
-      ]
-    );
+      },
+    ]);
   };
 
   const handleSearchChange = (text) => {
@@ -212,24 +204,25 @@ const DebtRegistration = () => {
       <ScrollView>
         <View style={styles.containerBase}>
           <View style={styles.header}>
-            <Text style={styles.title}>እዳ መመዝገቢያ</Text>
+            <Text style={styles.title}>{t("title")}</Text>
+            <LanguageChanger />
           </View>
           <View style={styles.registerContainer}>
             <TextInput
-              placeholder="ባለ እዳ ስም"
+              placeholder={t("placeholderName")}
               value={name}
               onChangeText={setName}
               style={styles.input}
             />
             <TextInput
-              placeholder="የገንዘብ መጠን"
+              placeholder={t("placeholderAmount")}
               value={amount}
               onChangeText={setAmount}
               keyboardType="numeric"
               style={styles.input}
             />
             <TextInput
-              placeholder="የብድር ምክንያት"
+              placeholder={t("placeholderReason")}
               value={reason}
               onChangeText={setReason}
               style={styles.input}
@@ -238,16 +231,15 @@ const DebtRegistration = () => {
               style={[styles.buttonBase, styles.registerButton]}
               onPress={registerDebt}
             >
-              <Text style={styles.buttonText}>እዳ መዝግብ</Text>
+              <Text style={styles.buttonText}>{t("registerButton")}</Text>
             </TouchableOpacity>
           </View>
 
           <View style={styles.soldItemsContainer}>
-            {/* Search Section */}
-            <Text style={styles.label}>የተመዘገቡ ባለ እዳዎች</Text>
+            <Text style={styles.label}>{t("debtorsLabel")}</Text>
             <View style={styles2.searchContainer}>
               <TextInput
-                placeholder="ባለ እዳ ስም ፈልግ"
+                placeholder={t("searchPlaceholder")}
                 value={searchTerm}
                 onChangeText={handleSearchChange}
                 style={styles.input}
@@ -273,8 +265,10 @@ const DebtRegistration = () => {
                             : styles2.debtText
                         }
                       >
-                        {totalDebt > 0 ? "ያለበት/ባት ብር" : "ያለብህ/ብሽ ብር"}:{" "}
-                        {totalDebt}
+                        {totalDebt > 0
+                          ? t("individualLabelPositive")
+                          : t("individualLabelNegative")}
+                        : {totalDebt}
                       </Text>
                     </View>
                     <View style={{ flexDirection: "row" }}>
@@ -305,8 +299,8 @@ const DebtRegistration = () => {
             }
           >
             {getTotalOwedByAll() >= 0
-              ? "ሰው ጋር ያለህ/ሽ አጠቃላይ ብር"
-              : "ሰው ላይ ያለብህ/ሽ አጠቃላይ ብር"}
+              ? t("totalLabelPositive")
+              : t("totalLabelNegative")}
             : {getTotalOwedByAll()} ETB
           </Text>
         </View>
@@ -316,14 +310,14 @@ const DebtRegistration = () => {
             style={[styles.buttonBase, styles.pdfButton]}
             onPress={handleExportClick}
           >
-            <Text style={styles.exportButtonText}>ወደ PDF ቀይር</Text>
+            <Text style={styles.exportButtonText}>{t("exportToPdf")}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
             style={[styles.buttonBase, styles.resetButton]}
             onPress={resetDept}
           >
-            <Text style={styles.resetButtonText}>ሙሉ እዳ አጥፋ</Text>
+            <Text style={styles.exportButtonText}>{t("resetDebts")}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
