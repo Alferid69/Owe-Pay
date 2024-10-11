@@ -179,7 +179,7 @@ const DebtRegistration = () => {
   };
 
   const resetDept = () => {
-    Alert.alert(t("confirmReset"), t("confirmReset.confirmReset"), [
+    Alert.alert("Warning",t("confirmReset"), [
       { text: t("cancelReset"), style: "cancel" },
       {
         text: t("confirmResetYes"),

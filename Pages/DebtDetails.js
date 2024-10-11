@@ -19,16 +19,22 @@ const DebtDetails = ({ route }) => {
   const handleEdit = (debt) => {
     // Navigate to Edit screen with the selected debt details
     navigation.navigate("EditDebt", {
-      debt: { date: debt.date, amount: debt.amount, reason: debt.reason }, // Passing the debt object
+      debt: {
+        date: debt.date,
+        amount: !isNaN(debt.amount) ? debt.amount : 0,
+        reason: debt.reason,
+      }, // Passing the debt object
       name: name, // Include the debtor's name as well
     });
   };
-  const {t} = useTranslation('global');
+  const { t } = useTranslation("global");
 
   return (
     <View style={styles.container}>
       <ScrollView>
-        <Text style={styles.title}>{t("detailTitle").replace("{name}", name)}</Text>
+        <Text style={styles.title}>
+          {t("detailTitle").replace("{name}", name)}
+        </Text>
         <FlatList
           data={debts}
           keyExtractor={(item, index) => index.toString()}
@@ -36,9 +42,20 @@ const DebtDetails = ({ route }) => {
             <View style={styles.debtItem}>
               <View>
                 <Text
-                  style={item.amount === 0 ? styles.paidText : item.amount > 0 ? styles.amountText : styles.debtText}
+                  style={
+                    isNaN(item.amount)
+                      ? styles.amountText
+                      : item.amount === 0
+                      ? styles.paidText
+                      : item.amount > 0
+                      ? styles.amountText
+                      : styles.debtText
+                  }
                 >
-                  {t("amount_label").replace("{amount}", String(item.amount.toFixed(2)))}
+                  {t("amount_label").replace(
+                    "{amount}",
+                    !isNaN(item.amount) ? String(item.amount.toFixed(2)) : 0.0
+                  )}
                 </Text>
                 <Text style={styles.reasonText}>
                   {t("reason_label").replace("{reason}", item.reason)}
@@ -47,7 +64,7 @@ const DebtDetails = ({ route }) => {
                   {t("date_label").replace("{date}", item.date)}
                 </Text>
               </View>
-  
+
               {item.amount !== 0 ? (
                 <View style={styles.actions}>
                   <TouchableOpacity
@@ -63,7 +80,6 @@ const DebtDetails = ({ route }) => {
                     style={styles.button}
                     onPress={() => Alert.alert(t("debt_paid_message"))}
                   >
-                    <Text style={{ color: "#fff" }}>{t("info_button")}</Text>
                     <FontAwesome name="info-circle" size={20} color="#fff" />
                   </TouchableOpacity>
                 </View>
@@ -75,7 +91,6 @@ const DebtDetails = ({ route }) => {
       </ScrollView>
     </View>
   );
-  
 };
 
 const styles = StyleSheet.create({

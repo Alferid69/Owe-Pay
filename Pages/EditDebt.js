@@ -20,39 +20,42 @@ const EditDebt = ({ route, navigation }) => {
   const [reason, setReason] = useState(debt.reason || ""); // Fallback to empty string
 
   const handleSave = async () => {
-    try {
-      const storedDebtors = await AsyncStorage.getItem("debtors");
-      const debtors = storedDebtors ? JSON.parse(storedDebtors) : {};
+    if (amount && reason) {
+      if(isNaN(amount)) return;
+      try {
+        const storedDebtors = await AsyncStorage.getItem("debtors");
+        const debtors = storedDebtors ? JSON.parse(storedDebtors) : {};
 
-      // Check if debtor exists and update the specific debt entry
-      if (debtors[name]) {
-        const debtIndex = debtors[name].debts.findIndex(
-          (d) => d.date === debt.date // Match by date or any unique property
-        );
-        if (debtIndex !== -1) {
-          // Update the debt entry
-          debtors[name].debts[debtIndex] = {
-            ...debtors[name].debts[debtIndex],
-            amount: parseFloat(amount),
-            reason: reason,
-          };
-          await AsyncStorage.setItem("debtors", JSON.stringify(debtors));
-          Alert.alert("Success", "Debt entry updated successfully.");
+        // Check if debtor exists and update the specific debt entry
+        if (debtors[name]) {
+          const debtIndex = debtors[name].debts.findIndex(
+            (d) => d.date === debt.date // Match by date or any unique property
+          );
+          if (debtIndex !== -1) {
+            // Update the debt entry
+            debtors[name].debts[debtIndex] = {
+              ...debtors[name].debts[debtIndex],
+              amount: parseFloat(amount),
+              reason: reason,
+            };
+            await AsyncStorage.setItem("debtors", JSON.stringify(debtors));
+            Alert.alert("Success", "Debt entry updated successfully.");
 
-          // Pass the updated debt back to the previous screen
-          navigation.navigate("DebtDetails", {
-            name,
-            debts: debtors[name].debts, // Updated debts list
-          });
+            // Pass the updated debt back to the previous screen
+            navigation.navigate("DebtDetails", {
+              name,
+              debts: debtors[name].debts, // Updated debts list
+            });
+          } else {
+            Alert.alert("Error", "Debt entry not found.");
+          }
         } else {
-          Alert.alert("Error", "Debt entry not found.");
+          Alert.alert("Error", "Debtor not found.");
         }
-      } else {
-        Alert.alert("Error", "Debtor not found.");
+      } catch (error) {
+        console.log("Error updating debt:", error);
+        Alert.alert("Error", "Failed to update debt. Please try again.");
       }
-    } catch (error) {
-      console.log("Error updating debt:", error);
-      Alert.alert("Error", "Failed to update debt. Please try again.");
     }
   };
 
