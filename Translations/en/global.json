@@ -35,5 +35,41 @@
   "edit_debt_title": "Edit Debt Entry",
   "amount_placeholder": "Amount",
   "reason_placeholder": "Reason",
-  "save_changes_button": "Save Changes"
+  "save_changes_button": "Save Changes",
+
+  "enter_pin_title": "Enter Your PIN",
+  "pin_input_placeholder": "Enter PIN",
+  "incorrect_pin_message": "Incorrect PIN, please try again.",
+  "unlock_button_text": "Unlock",
+  "generic_error_message": "Something went wrong, Please try again later.",
+
+  "edit_pin_title": "Edit Your PIN",
+  "enter_current_pin": "Enter Current PIN",
+  "enter_new_pin": "Enter New PIN",
+  "confirm_new_pin": "Confirm New PIN",
+  "save_new_pin": "Save New PIN",
+  "pin_mismatch_error": "New PIN and Confirm PIN do not match.",
+  "current_pin_error": "Current PIN is not correct.",
+  "success_message": "PIN has been updated.",
+
+  "settings_title": "Settings",
+  "change_pin": "Change PIN",
+
+  "languageChanger": {
+    "title": "Change Language",
+    "english": "🇬🇧 English",
+    "amharic": "🇪🇹 አማርኛ"
+  },
+
+  "enterPin": "Enter Your PIN",
+  "enterPinPlaceholder": "Enter PIN",
+  "resetSuccessMessage": "All debts have been successfully reset.",
+  "incorrectPinMessage": "Incorrect PIN, please try again.",
+  "somethingWentWrong": "Something went wrong, please try again.",
+
+  "authenticate_prompt": "Authenticate to unlock",
+  "biometric_auth_failed": "Biometric authentication failed.",
+  "biometrics_not_available": "Biometric authentication is not available on this device.",
+  "use_biometrics_button_text": "Use Biometrics",
+  "use_pin_instead": "Please use your PIN to unlock."
 }

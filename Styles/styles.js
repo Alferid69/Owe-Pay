@@ -168,9 +168,24 @@ export const styles = StyleSheet.create({
     position: "relative",
   },
   lang: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    padding: 10,
+    width: "100%",
+    height: 53,
+    borderRadius: 10,
+    backgroundColor: "#007B3F",
+  },
+  picker: {
+    height: 50,
+    width: "50%",
+    color: "#fff",
+  },
+  setting: {
     position: "absolute",
-    right: 5,
-    top: 13,
+    right: 10,
+    top: 15,
   },
 
   title: {

@@ -7,18 +7,21 @@ import {
   Text,
   TextInput,
   TouchableOpacity,
-  View,
+  View
 } from "react-native";
 
 import { FontAwesome } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
 import * as Print from "expo-print";
+import * as SecureStore from "expo-secure-store";
 import * as Sharing from "expo-sharing";
-import { styles } from "../Styles/styles";
 import { useTranslation } from "react-i18next";
+import { styles } from "../Styles/styles";
 
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import LanguageChanger from "../Components/LanguageChanger";
+import PinConfirmation from "../Components/PinConfirmation";
+import LockScreen from "./LockScreen";
+import SetupLockScreen from "./SetupLockScreen";
 
 const DebtRegistration = () => {
   const [name, setName] = useState("");
@@ -26,9 +29,21 @@ const DebtRegistration = () => {
   const [reason, setReason] = useState("");
   const [debtors, setDebtors] = useState([]);
   const [searchTerm, setSearchTerm] = useState(""); // New state for search term
+  const [isPinSet, setIsPinSet] = useState(false);
+  const [isUnlocked, setIsUnlocked] = useState(false);
+  const [isModalVisible, setIsModalVisible] = useState(false);
 
   const navigation = useNavigation();
   const { t } = useTranslation("global");
+
+  useEffect(() => {
+    const checkPin = async () => {
+      const storedPin = await SecureStore.getItemAsync("userPin");
+      setIsPinSet(!!storedPin);
+    };
+
+    checkPin();
+  }, []);
 
   const loadDebtors = async () => {
     try {
@@ -51,6 +66,14 @@ const DebtRegistration = () => {
     return unsubscribe;
   }, [navigation]);
 
+  if (!isPinSet) {
+    return <SetupLockScreen onSetPin={() => setIsPinSet(true)} />;
+  }
+
+  if (!isUnlocked) {
+    return <LockScreen onUnlock={() => setIsUnlocked(true)} />;
+  }
+
   const registerDebt = async () => {
     if (name && amount && reason) {
       const date = new Date().toString();
@@ -71,6 +94,13 @@ const DebtRegistration = () => {
       setAmount("");
       setReason("");
     }
+  };
+
+
+  const confirmReset = async () => {
+    await AsyncStorage.removeItem("debtors");
+    setDebtors([]); // Assuming you have a setDebtors function to clear state
+    Alert.alert("Success", t('resetSuccessMessage'));
   };
 
   const handleDetails = (name) => {
@@ -178,18 +208,39 @@ const DebtRegistration = () => {
     exportDataToPdf(allDebts);
   };
 
-  const resetDept = () => {
-    Alert.alert("Warning",t("confirmReset"), [
-      { text: t("cancelReset"), style: "cancel" },
-      {
-        text: t("confirmResetYes"),
-        onPress: async () => {
-          await AsyncStorage.removeItem("debtors");
-          setDebtors([]);
-        },
-      },
-    ]);
-  };
+  // const resetDept = () => {
+  //   Alert.prompt(
+  //     t("enterPin"), // Title of the prompt
+  //     t("confirmReset"), // Message to show in the prompt
+  //     [
+  //       {
+  //         text: t("cancelReset"),
+  //         style: "cancel",
+  //       },
+  //       {
+  //         text: t("confirmResetYes"),
+  //         onPress: async (enteredPin) => {
+  //           try {
+  //             const storedPin = await SecureStore.getItemAsync("userPin");
+
+  //             if (enteredPin === storedPin) {
+  //               // If PIN matches, reset debts
+  //               await AsyncStorage.removeItem("debtors");
+  //               setDebtors([]);
+  //               Alert.alert(t("success"), t("resetSuccessMessage"));
+  //             } else {
+  //               // If PIN does not match, show error
+  //               Alert.alert(t("error"), t("incorrectPinMessage"));
+  //             }
+  //           } catch (error) {
+  //             Alert.alert(t("error"), t("somethingWentWrong"));
+  //           }
+  //         },
+  //       },
+  //     ],
+  //     "secure-text" // Input type for the prompt
+  //   );
+  // };
 
   const handleSearchChange = (text) => {
     setSearchTerm(text);
@@ -201,126 +252,141 @@ const DebtRegistration = () => {
 
   return (
     <>
-      <ScrollView>
-        <View style={styles.containerBase}>
-          <View style={styles.header}>
-            <Text style={styles.title}>{t("title")}</Text>
-            <LanguageChanger />
-          </View>
-          <View style={styles.registerContainer}>
-            <TextInput
-              placeholder={t("placeholderName")}
-              value={name}
-              onChangeText={setName}
-              style={styles.input}
-            />
-            <TextInput
-              placeholder={t("placeholderAmount")}
-              value={amount}
-              onChangeText={setAmount}
-              keyboardType="numeric"
-              style={styles.input}
-            />
-            <TextInput
-              placeholder={t("placeholderReason")}
-              value={reason}
-              onChangeText={setReason}
-              style={styles.input}
-            />
-            <TouchableOpacity
-              style={[styles.buttonBase, styles.registerButton]}
-              onPress={registerDebt}
-            >
-              <Text style={styles.buttonText}>{t("registerButton")}</Text>
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.soldItemsContainer}>
-            <Text style={styles.label}>{t("debtorsLabel")}</Text>
-            <View style={styles2.searchContainer}>
+      {!isModalVisible && (
+        <ScrollView>
+          <View style={styles.containerBase}>
+            <View style={styles.header}>
+              <Text style={styles.title}>{t("title")}</Text>
+              <View style={styles.setting}>
+                <TouchableOpacity
+                  onPress={() => navigation.navigate("Settings")}
+                >
+                  <FontAwesome name="gear" size={35} color="#000" />
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={styles.registerContainer}>
               <TextInput
-                placeholder={t("searchPlaceholder")}
-                value={searchTerm}
-                onChangeText={handleSearchChange}
+                placeholder={t("placeholderName")}
+                value={name}
+                onChangeText={setName}
                 style={styles.input}
               />
+              <TextInput
+                placeholder={t("placeholderAmount")}
+                value={amount}
+                onChangeText={setAmount}
+                keyboardType="numeric"
+                style={styles.input}
+              />
+              <TextInput
+                placeholder={t("placeholderReason")}
+                value={reason}
+                onChangeText={setReason}
+                style={styles.input}
+              />
+              <TouchableOpacity
+                style={[styles.buttonBase, styles.registerButton]}
+                onPress={registerDebt}
+              >
+                <Text style={styles.buttonText}>{t("registerButton")}</Text>
+              </TouchableOpacity>
             </View>
 
-            <FlatList
-              data={filteredDebtors}
-              keyExtractor={(item) => item}
-              renderItem={({ item }) => {
-                const totalDebt = debtors[item].debts.reduce(
-                  (sum, debt) => sum + debt.amount,
-                  0
-                );
-                return (
-                  <View style={styles2.container}>
-                    <View>
-                      <Text style={styles2.debtorText}>{item}</Text>
-                      <Text
-                        style={
-                          totalDebt > 0
-                            ? styles2.totalDebtText
-                            : styles2.debtText
-                        }
-                      >
-                        {totalDebt > 0
-                          ? t("individualLabelPositive")
-                          : t("individualLabelNegative")}
-                        : {totalDebt}
-                      </Text>
+            <View style={styles.soldItemsContainer}>
+              <Text style={styles.label}>{t("debtorsLabel")}</Text>
+              <View style={styles2.searchContainer}>
+                <TextInput
+                  placeholder={t("searchPlaceholder")}
+                  value={searchTerm}
+                  onChangeText={handleSearchChange}
+                  style={styles.input}
+                />
+              </View>
+
+              <FlatList
+                data={filteredDebtors}
+                keyExtractor={(item) => item}
+                renderItem={({ item }) => {
+                  const totalDebt = debtors[item].debts.reduce(
+                    (sum, debt) => sum + debt.amount,
+                    0
+                  );
+                  return (
+                    <View style={styles2.container}>
+                      <View>
+                        <Text style={styles2.debtorText}>{item}</Text>
+                        <Text
+                          style={
+                            totalDebt > 0
+                              ? styles2.totalDebtText
+                              : styles2.debtText
+                          }
+                        >
+                          {totalDebt > 0
+                            ? t("individualLabelPositive")
+                            : t("individualLabelNegative")}
+                          : {totalDebt}
+                        </Text>
+                      </View>
+                      <View style={{ flexDirection: "row" }}>
+                        <TouchableOpacity
+                          style={styles2.button}
+                          onPress={() => handleDetails(item)}
+                        >
+                          <FontAwesome
+                            name="info-circle"
+                            size={20}
+                            color="#fff"
+                          />
+                        </TouchableOpacity>
+                      </View>
                     </View>
-                    <View style={{ flexDirection: "row" }}>
-                      <TouchableOpacity
-                        style={styles2.button}
-                        onPress={() => handleDetails(item)}
-                      >
-                        <FontAwesome
-                          name="info-circle"
-                          size={20}
-                          color="#fff"
-                        />
-                      </TouchableOpacity>
-                    </View>
-                  </View>
-                );
-              }}
-            />
+                  );
+                }}
+              />
+            </View>
           </View>
-        </View>
 
-        <View style={styles.summary}>
-          <Text
-            style={
-              getTotalOwedByAll() >= 0
-                ? styles.summaryText
-                : styles2.summaryDebtText
-            }
-          >
-            {getTotalOwedByAll() >= 0
-              ? t("totalLabelPositive")
-              : t("totalLabelNegative")}
-            : {getTotalOwedByAll()} ETB
-          </Text>
-        </View>
+          <View style={styles.summary}>
+            <Text
+              style={
+                getTotalOwedByAll() >= 0
+                  ? styles.summaryText
+                  : styles2.summaryDebtText
+              }
+            >
+              {getTotalOwedByAll() >= 0
+                ? t("totalLabelPositive")
+                : t("totalLabelNegative")}
+              : {getTotalOwedByAll()} ETB
+            </Text>
+          </View>
 
-        <View style={styles.actions}>
-          <TouchableOpacity
-            style={[styles.buttonBase, styles.pdfButton]}
-            onPress={handleExportClick}
-          >
-            <Text style={styles.exportButtonText}>{t("exportToPdf")}</Text>
-          </TouchableOpacity>
+          <View style={styles.actions}>
+            <TouchableOpacity
+              style={[styles.buttonBase, styles.pdfButton]}
+              onPress={handleExportClick}
+            >
+              <Text style={styles.exportButtonText}>{t("exportToPdf")}</Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.buttonBase, styles.resetButton]}
-            onPress={resetDept}
-          >
-            <Text style={styles.exportButtonText}>{t("resetDebts")}</Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+            <TouchableOpacity
+              style={[styles.buttonBase, styles.resetButton]}
+              onPress={() => setIsModalVisible(true)}
+            >
+              <Text style={styles.exportButtonText}>{t("resetDebts")}</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
+      )}
+      {isModalVisible && (
+        <PinConfirmation
+          visible={isModalVisible}
+          onClose={() => setIsModalVisible(false)}
+          onConfirm={confirmReset}
+        />
+      )}
     </>
   );
 };
