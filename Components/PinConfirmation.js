@@ -27,7 +27,6 @@ const PinConfirmation = ({ visible, onClose, onConfirm }) => {
         });
 
         if (result.success) {
-          Alert.alert("Success", "Authenticated with biometrics");
           onConfirm(); // Call the onConfirm function if biometric authentication is successful
           onClose(); // Close the modal
         }

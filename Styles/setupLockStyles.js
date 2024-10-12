@@ -21,7 +21,7 @@ export const setupLockStyles = StyleSheet.create({
     width: '100%',
   },
   pinInput: {
-    width: 50,
+    width: '100%',
     height: 50,
     borderWidth: 2,
     borderColor: '#007bff',
