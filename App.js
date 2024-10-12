@@ -1,18 +1,19 @@
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import { I18nextProvider } from "react-i18next";
-import { Settings, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { enableScreens } from "react-native-screens";
+
+import Footer from "./Components/Footer";
+import i18n from "./i18n";
 import DebtDetails from "./Pages/DebtDetails";
 import DebtRegistration from "./Pages/DebtRegistration";
 import EditDebt from "./Pages/EditDebt";
-import Footer from "./Components/Footer";
-import i18n from "./i18n";
-import SetupLockScreen from "./Pages/SetupLockScreen";
-import LockScreen from "./Pages/LockScreen";
 import EditPin from "./Pages/EditPin";
+import LockScreen from "./Pages/LockScreen";
 import SettingsPage from "./Pages/SettingsPage";
+import SetupLockScreen from "./Pages/SetupLockScreen";
 
 enableScreens();
 
